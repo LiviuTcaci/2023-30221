@@ -22,12 +22,12 @@ public class Customer {
         this.phone = phone;
     }
 
-    public void openAccount(BankAccount.AccountType accountType) {
-        BankAccount account = new BankAccount(accountType);
+    public void openAccount(AccountType type) {
+        BankAccount account = new BankAccount(type);
         accounts.add(account);
     }
 
-    private BankAccount getAccount(Integer accountNumber) {
+    public BankAccount getAccount(Integer accountNumber) {
         for (BankAccount account : accounts) {
             if (account.getAccountNumber().equals(accountNumber)) {
                 return account;
@@ -56,43 +56,7 @@ public class Customer {
         account.withdrawCurrency(amount);
     }
 
-    //Moves currency between own accounts
-    public void transferInternalCurrency(Integer sourceAccountNumber, Integer destinationAccountNumber, Double amount) {
-        BankAccount sourceAccount = getAccount(sourceAccountNumber);
-        BankAccount destinationAccount = getAccount(destinationAccountNumber);
 
-        if (sourceAccount == null || destinationAccount == null) {
-            throw new IllegalArgumentException("Invalid account number");
-        }
-
-        Transaction transaction = new Transaction(sourceAccount, destinationAccount, Transaction.TransactionType.TRANSFER_OUT, amount, null);
-        sourceAccount.addTransaction(transaction);
-
-        transaction = new Transaction(sourceAccount, destinationAccount, Transaction.TransactionType.TRANSFER_IN, amount, null);
-        destinationAccount.addTransaction(transaction);
-    }
-
-    //Transfer between accounts of different customers
-    public void transferExternalCurrency(Integer sourceAccountNumber, Customer destinationCustomer, Integer destinationAccountNumber, Double amount) {
-        BankAccount sourceAccount = getAccount(sourceAccountNumber);
-        BankAccount destinationAccount = destinationCustomer.getAccount(destinationAccountNumber);
-
-        if (sourceAccount == null || destinationAccount == null) {
-            throw new IllegalArgumentException("Invalid account number");
-        }
-
-        //TODO: If I handle the invalid input here, addTransaction() can assume that the input is valid
-        //TODO: Should I add checks in addTransaction() as well? I see no reason because it's only called from here
-        //TODO: But having a method that doesn't validate the input seems weird
-        if (amount > sourceAccount.getBalance()) {
-            throw new IllegalArgumentException("Amount cannot be greater than balance");
-        }
-
-        Transaction transaction = new Transaction(sourceAccount, destinationAccount, Transaction.TransactionType.TRANSFER_OUT, amount, null);
-        sourceAccount.addTransaction(transaction);
-        transaction = new Transaction(sourceAccount, destinationAccount, Transaction.TransactionType.TRANSFER_IN, amount, null);
-        destinationAccount.addTransaction(transaction);
-    }
 
     public Double getBalance(Integer accountNumber) {
         BankAccount account = getAccount(accountNumber);
